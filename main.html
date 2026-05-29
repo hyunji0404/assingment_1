@@ -1,23 +1,347 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>웹 연습</title>
-
-    <!-- CSS 연결 -->
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>아기 수유 기록 앱</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <h1 id="title">안녕하세요</h1>
+<div class="phone">
 
-    <button onclick="changeText()">
-        클릭
-    </button>
+  <!-- ── 상태 바 ── -->
+  <div class="status-bar">
+    <span id="current-time">09:41</span>
+    <span>🔋</span>
+  </div>
 
-    <!-- JS 연결 -->
-    <script src="script.js"></script>
+  <!-- ── 숨겨진 파일 input (사진 업로드용) ── -->
+  <input
+    type="file"
+    id="photo-file-input"
+    accept="image/*"
+    multiple
+    style="display:none"
+    onchange="onPhotoFileSelected(event)"
+  >
 
+  <div class="scroll-area">
+
+    <!-- ═══════════════════════════════
+         홈
+    ═══════════════════════════════ -->
+    <div class="page active" id="page-home">
+
+      <div class="home-header">
+        <div class="home-header-top">
+          <div>
+            <div class="greeting">안녕하세요 👋</div>
+            <div class="baby-name" id="home-baby-name">하준이의 수유 기록</div>
+          </div>
+          <div class="avatar">🍼</div>
+        </div>
+
+        <!-- 다음 수유 카드 -->
+        <div class="next-feed-card">
+          <div class="next-label" id="next-label">▶ 다음 수유까지</div>
+          <div class="next-time" id="next-feed-timer">--:--:--</div>
+          <div class="next-sub"  id="next-sub">마지막 수유 기록을 확인 중...</div>
+          <button class="feed-now-btn" onclick="switchTab('record')">지금 수유 기록하기</button>
+        </div>
+
+        <!-- 알림 권한 배너 (권한 미허용 시 표시) -->
+        <div class="notif-banner" id="notif-banner" style="display:none">
+          <div class="notif-icon">🔔</div>
+          <div class="notif-text">수유 시간 알림을 받아보세요</div>
+          <button class="btn-allow" onclick="requestNotifPermission()">허용하기</button>
+        </div>
+      </div>
+
+      <!-- 수유 간격 슬라이더 -->
+      <div class="interval-bar">
+        <span class="interval-label">수유 간격</span>
+        <input type="range" id="interval-slider" min="1" max="6" step="0.5" value="3"
+               oninput="onIntervalChange(this.value)">
+        <span class="interval-val" id="interval-display">3h</span>
+      </div>
+
+      <!-- 오늘 요약 -->
+      <div class="section">
+        <div class="section-title">오늘 요약</div>
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-icon">🍼</div>
+            <div><span class="stat-value" id="home-count">0</span><span class="stat-unit">회</span></div>
+            <div class="stat-label">총 수유 횟수</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">📊</div>
+            <div><span class="stat-value" id="home-total">0</span><span class="stat-unit">ml</span></div>
+            <div class="stat-label">총 수유량</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">⏱</div>
+            <div><span class="stat-value" id="home-interval">3</span><span class="stat-unit">h</span></div>
+            <div class="stat-label">설정 수유 간격</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <div><span class="stat-value" id="home-avg">0</span><span class="stat-unit">ml</span></div>
+            <div class="stat-label">평균 수유량</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 최근 기록 -->
+      <div class="section" style="padding-top:0">
+        <div class="section-title">최근 기록</div>
+        <div class="feed-list" id="home-feed-list"></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════
+         수유 기록
+    ═══════════════════════════════ -->
+    <div class="page" id="page-record">
+      <div class="page-header">
+        <div class="page-title">수유 기록</div>
+        <div class="page-subtitle">분유량 계산 후 기록해주세요</div>
+      </div>
+      <div class="section">
+
+        <!-- 분유량 계산기 -->
+        <div class="calc-card">
+          <div class="calc-title">
+            🧮 분유량 계산기
+            <span class="calc-badge">월령·체중 기반</span>
+          </div>
+          <div class="input-row">
+            <div class="input-group">
+              <div class="input-label">아기 월령</div>
+              <div class="input-wrap">
+                <input type="number" id="inp-month" value="3" min="0" max="12" oninput="calcFormula()">
+                <span class="input-unit">개월</span>
+              </div>
+            </div>
+            <div class="input-group">
+              <div class="input-label">현재 체중</div>
+              <div class="input-wrap">
+                <input type="number" id="inp-weight" value="5.8" step="0.1" min="2" max="15" oninput="calcFormula()">
+                <span class="input-unit">kg</span>
+              </div>
+            </div>
+          </div>
+          <div class="calc-result">
+            <div>
+              <div class="result-label">1회 권장 분유량</div>
+              <div class="result-range" id="result-range">범위: 140 ~ 180ml</div>
+            </div>
+            <div class="result-value" id="result-ml">160ml</div>
+          </div>
+        </div>
+
+        <!-- 기록 저장 -->
+        <div class="calc-card">
+          <div class="calc-title">💾 기록 저장</div>
+          <div class="save-row">
+            <div class="input-group">
+              <div class="input-label">실제 먹은 양</div>
+              <div class="input-wrap">
+                <input type="number" id="inp-actual" placeholder="160" min="0" max="300">
+                <span class="input-unit">ml</span>
+              </div>
+            </div>
+            <button class="btn-save" onclick="saveFeed()">저장 ✓</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════
+         히스토리
+    ═══════════════════════════════ -->
+    <div class="page" id="page-history">
+      <div class="page-header">
+        <div class="page-title">히스토리</div>
+        <div class="page-subtitle">✏️ 수정 · 🗑️ 삭제로 기록을 관리하세요</div>
+      </div>
+      <div class="section">
+        <div class="history-day-label">전체 기록</div>
+        <div class="history-list" id="history-list"></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════
+         앨범 — 실제 사진 업로드 지원
+    ═══════════════════════════════ -->
+    <div class="page" id="page-album">
+      <div class="page-header">
+        <div class="page-title">사진 앨범</div>
+        <div class="page-subtitle">📷 사진을 추가하고 탭하면 크게 볼 수 있어요</div>
+      </div>
+      <div class="section">
+        <!-- 실제 파일 선택 버튼 -->
+        <button class="upload-btn" onclick="triggerPhotoUpload()">
+          📷 사진 추가하기
+        </button>
+        <div class="section-title">전체 사진</div>
+        <div class="album-grid" id="album-grid"></div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════
+         설정 — 아기 정보 직접 수정 가능
+    ═══════════════════════════════ -->
+    <div class="page" id="page-settings">
+      <div class="page-header">
+        <div class="page-title">설정</div>
+        <div class="page-subtitle">아기 정보 및 알림 설정</div>
+      </div>
+      <div class="section">
+
+        <!-- 아기 정보 (탭하면 수정 모달) -->
+        <div class="section-title">아기 정보</div>
+        <div class="settings-card">
+          <div class="setting-item" onclick="openBabyInfoModal()">
+            <div class="setting-icon green">👶</div>
+            <div class="setting-info">
+              <div class="setting-name">이름</div>
+              <div class="setting-desc">탭하여 아기 정보 수정</div>
+            </div>
+            <div class="setting-value" id="setting-baby-name">하준</div>
+            <div>›</div>
+          </div>
+          <div class="setting-item" onclick="openBabyInfoModal()">
+            <div class="setting-icon green">🎂</div>
+            <div class="setting-info">
+              <div class="setting-name">생년월일</div>
+              <div class="setting-desc">월령 계산에 사용</div>
+            </div>
+            <div class="setting-value" id="setting-baby-birth">2023.12.07</div>
+            <div>›</div>
+          </div>
+          <div class="setting-item" onclick="openBabyInfoModal()">
+            <div class="setting-icon green">⚖️</div>
+            <div class="setting-info">
+              <div class="setting-name">현재 체중</div>
+              <div class="setting-desc">분유량 계산에 사용</div>
+            </div>
+            <div class="setting-value" id="setting-baby-weight">5.8 kg</div>
+            <div>›</div>
+          </div>
+        </div>
+
+        <!-- 알림 설정 -->
+        <div class="section-title" style="margin-top:20px">알림</div>
+        <div class="settings-card">
+          <div class="setting-item" onclick="requestNotifPermission()">
+            <div class="setting-icon orange">🔔</div>
+            <div class="setting-info">
+              <div class="setting-name">수유 알림</div>
+              <div class="setting-desc">다음 수유 시간 알림</div>
+            </div>
+            <div class="toggle" id="notif-toggle"></div>
+          </div>
+          <div class="setting-item">
+            <div class="setting-icon orange">⏰</div>
+            <div class="setting-info">
+              <div class="setting-name">수유 간격</div>
+              <div class="setting-desc">홈 화면 슬라이더로 조정</div>
+            </div>
+            <div class="setting-value" id="setting-interval-val">3시간</div>
+          </div>
+        </div>
+
+        <!-- 데이터 -->
+        <div class="section-title" style="margin-top:20px">데이터</div>
+        <div class="settings-card">
+          <div class="setting-item">
+            <div class="setting-icon gray">💾</div>
+            <div class="setting-info">
+              <div class="setting-name">저장 위치</div>
+              <div class="setting-desc">브라우저 로컬 저장소</div>
+            </div>
+            <div class="setting-value">localStorage</div>
+          </div>
+          <div class="setting-item" onclick="resetData()">
+            <div class="setting-icon gray">🗑️</div>
+            <div class="setting-info">
+              <div class="setting-name" style="color:var(--danger)">데이터 초기화</div>
+              <div class="setting-desc">모든 수유 기록 삭제</div>
+            </div>
+            <div>›</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /.scroll-area -->
+
+  <!-- ── 하단 내비게이션 ── -->
+  <nav class="bottom-nav">
+    <div class="nav-item active" id="nav-home" onclick="switchTab('home')">
+      <div class="nav-icon">🏠</div>
+      <div class="nav-label">홈</div>
+    </div>
+    <div class="nav-item" id="nav-history" onclick="switchTab('history')">
+      <div class="nav-icon">📋</div>
+      <div class="nav-label">히스토리</div>
+    </div>
+    <div class="nav-center" onclick="switchTab('record')">＋</div>
+    <div class="nav-item" id="nav-album" onclick="switchTab('album')">
+      <div class="nav-icon">📷</div>
+      <div class="nav-label">앨범</div>
+    </div>
+    <div class="nav-item" id="nav-settings" onclick="switchTab('settings')">
+      <div class="nav-icon">⚙️</div>
+      <div class="nav-label">설정</div>
+    </div>
+  </nav>
+
+  <!-- ── 토스트 메시지 ── -->
+  <div class="toast" id="toast"></div>
+
+</div><!-- /.phone -->
+
+<!-- ═══════════════════════════════
+     아기 정보 수정 모달
+═══════════════════════════════ -->
+<div class="modal-overlay" id="baby-info-modal">
+  <div class="modal-sheet">
+    <div class="modal-title">👶 아기 정보 수정</div>
+
+    <div class="modal-field">
+      <div class="modal-label">아기 이름</div>
+      <input class="modal-input" id="modal-name" type="text" placeholder="이름을 입력하세요">
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">생년월일</div>
+      <input class="modal-input" id="modal-birth" type="date">
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">현재 체중 (kg)</div>
+      <input class="modal-input" id="modal-weight" type="number" step="0.1" min="1" max="30" placeholder="5.8">
+    </div>
+
+    <div class="modal-btns">
+      <button class="btn-modal-cancel" onclick="closeBabyInfoModal()">취소</button>
+      <button class="btn-modal-save"   onclick="saveBabyInfo()">저장하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════
+     사진 라이트박스
+═══════════════════════════════ -->
+<div class="lightbox" id="lightbox">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <img id="lightbox-img" src="" alt="사진 크게 보기">
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
