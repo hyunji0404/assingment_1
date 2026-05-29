@@ -20,8 +20,8 @@
  */
 
 const DEFAULT_BABY = {
-  name: '하준',
-  birth: '2023-12-07',   // YYYY-MM-DD 형식
+  name: '하온',
+  birth: '2026-03-07',   // YYYY-MM-DD 형식
   weight: 5.8            // kg
 };
 
