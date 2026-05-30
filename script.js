@@ -26,7 +26,7 @@ let memos    = load('memos', {});
 let feedIntervalHours = load('feedIntervalHours', 3);
 let nextId = (feedLogs.length ? Math.max(...feedLogs.map(f=>f.id)) : 0) + 1;
 let nextPhotoId = (photos.length ? Math.max(...photos.map(p=>p.id)) : 0) + 1;
-let notifPermission = Notification.permission;
+let notifPermission = typeof Notification !== "undefined" ? Notification.permission : "default";
 let notifEnabled = load('notifEnabled', false); // 사용자가 명시적으로 활성화했는지
 let notifFired = false;
 
