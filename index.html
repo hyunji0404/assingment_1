@@ -182,6 +182,21 @@
           <h1 class="page-title">히스토리</h1>
           <p class="page-subtitle">시간·수유량·날짜 모두 수정 가능해요</p>
         </div>
+        <div class="search-bar-row">
+          <div class="search-date-wrap">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" class="search-cal-icon">
+              <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+              <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <input type="date" id="history-date-filter" class="search-date-input" onchange="filterHistory()" placeholder="날짜 선택">
+          </div>
+          <button class="search-clear-btn" id="history-clear-btn" onclick="clearHistoryFilter()" style="display:none;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+              <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
+            초기화
+          </button>
+        </div>
         <div class="history-list" id="history-list"></div>
       </div>
 
@@ -198,6 +213,21 @@
           </svg>
           <span>사진 추가하기</span>
         </button>
+        <div class="search-bar-row">
+          <div class="search-date-wrap">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" class="search-cal-icon">
+              <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+              <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <input type="date" id="album-date-filter" class="search-date-input" onchange="filterAlbum()" placeholder="날짜 선택">
+          </div>
+          <button class="search-clear-btn" id="album-clear-btn" onclick="clearAlbumFilter()" style="display:none;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
+              <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+            </svg>
+            초기화
+          </button>
+        </div>
         <input type="file" id="photo-file-input" accept="image/*" multiple onchange="onPhotoFileSelected(event)" style="display:none;">
         <div class="album-grid" id="album-grid"></div>
       </div>

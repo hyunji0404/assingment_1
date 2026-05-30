@@ -81,7 +81,8 @@ body {
    모바일:   전체 화면
 */
 .app-container {
-  width: 390px;          /* iPhone 14 기준 */
+  width: 100%;
+  max-width: 480px;
   margin: 0 auto;
   min-height: 100vh;
   background: var(--bg);
@@ -403,6 +404,41 @@ body {
 .btn-save:hover { transform: scale(1.07); }
 .btn-save:active { transform: scale(0.95); }
 
+/* ━━━ 날짜 검색 바 ━━━ */
+.search-bar-row {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 14px;
+}
+.search-date-wrap {
+  flex: 1; display: flex; align-items: center; gap: 8px;
+  background: var(--surf);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  padding: 9px 12px;
+  box-shadow: var(--raised-sm);
+  transition: border-color 0.15s;
+}
+.search-date-wrap:focus-within { border-color: var(--bubblegum); }
+.search-cal-icon { color: var(--txt3); flex-shrink: 0; }
+.search-date-input {
+  flex: 1; border: none; background: transparent; outline: none;
+  font-size: 13px; font-weight: 600; color: var(--txt);
+  font-family: 'DM Mono', monospace;
+  cursor: pointer;
+}
+.search-date-input::-webkit-calendar-picker-indicator { opacity: 0.5; cursor: pointer; }
+.search-clear-btn {
+  display: flex; align-items: center; gap: 5px;
+  background: var(--gray-100); border: 1px solid var(--gray-200);
+  border-radius: var(--radius-md);
+  padding: 9px 12px;
+  font-size: 11px; font-weight: 700; color: var(--txt2);
+  cursor: pointer; white-space: nowrap;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+.search-clear-btn:hover { background: var(--gray-200); color: var(--txt); }
+
 /* ━━━ 히스토리 ━━━ */
 .history-blob-item {
   display: flex; align-items:center; gap:9px;
@@ -462,15 +498,18 @@ body {
   box-shadow: var(--raised-sm);
   border: 1px solid var(--gray-200);
   transition: all 0.2s ease;
+  position: relative;
 }
 .album-thumb:hover { transform:scale(1.02) translateY(-2px); box-shadow: var(--raised-md); }
-.album-thumb img { width:100%; height:100%; object-fit:cover; }
+.album-thumb img { width:100%; height:100%; object-fit:cover; display:block; }
 .album-thumb-label {
   position:absolute; bottom:7px; left:7px;
   background:rgba(26,26,26,0.65); backdrop-filter:blur(6px);
   color:white; font-size:9px; font-weight:800;
   padding:2px 7px; border-radius:6px;
   font-family:'DM Mono',monospace; letter-spacing:0.02em;
+  z-index: 2;
+  pointer-events: none;
 }
 .album-del-btn {
   position:absolute; top:-5px; right:-5px;
@@ -613,7 +652,7 @@ body {
   border:1px solid rgba(228,135,158,0.18);
 }
 
-.cal-photo-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:9px; }
+.cal-photo-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:9px; min-height:80px; }
 .cal-photo-item {
   border-radius:var(--radius-md); overflow:hidden; cursor:pointer;
   box-shadow:var(--raised-sm); border:1px solid var(--gray-200);
@@ -819,7 +858,8 @@ body {
 /* ━━━ 하단 네비 ━━━ */
 .bottom-nav {
   position:fixed; bottom:0; left:50%; transform:translateX(-50%);
-  width:390px;
+  width:100%;
+  max-width:480px;
   height:var(--nav-h);
   background:rgba(255,255,255,0.98);
   backdrop-filter:blur(16px);
@@ -930,30 +970,15 @@ body {
 .empty-text { font-size:12px; line-height:1.6; font-weight:500; }
 
 /* ━━━ 웹 데스크톱 레이아웃 ━━━ */
-@media (min-width: 600px) {
+@media (min-width: 768px) {
   body {
     background: #DDDDE0;
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    min-height: 100vh;
-    padding: 32px 0;
   }
   .app-container {
-    width: 390px;
-    min-height: calc(100vh - 64px);
-    border-radius: 40px;
-    overflow: hidden;
-    box-shadow:
-      0 0 0 1px rgba(0,0,0,0.06),
-      0 8px 24px rgba(0,0,0,0.1),
-      0 24px 60px rgba(0,0,0,0.14);
-    position: relative;
+    max-width: 680px;
   }
   .bottom-nav {
-    width: 390px;
-    border-radius: 0 0 40px 40px;
-    left: 50%; transform: translateX(-50%);
+    max-width: 680px;
   }
   .modal-sheet     { border-radius:22px; margin:auto; max-height:85vh; }
   .modal-overlay   { align-items:center; padding:20px; }
@@ -961,11 +986,16 @@ body {
   .photo-edit-modal-overlay { align-items:center; padding:20px; }
 }
 
+/* ━━━ 태블릿 ━━━ */
+@media (min-width: 480px) and (max-width: 767px) {
+  .stats-row { grid-template-columns: repeat(4, 1fr); }
+  .album-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
 /* ━━━ 모바일 ━━━ */
-@media (max-width: 599px) {
+@media (max-width: 479px) {
   body { background: var(--bg); }
-  .app-container { width: 100%; }
-  .bottom-nav { width: 100%; left: 0; transform: none; }
+  .app-container { border-radius: 0; box-shadow: none; }
   .timer-digits { font-size:36px; }
   .stats-row { gap:5px; }
   .stat-pill { padding:10px 3px 9px; }

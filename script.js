@@ -312,14 +312,45 @@ function renderHome() {
   }).join('');
 }
 
-/* ─── 히스토리 렌더링 ─── */
-function renderHistory() {
+/* ─── 히스토리 날짜 필터 ─── */
+function filterHistory() {
+  const val = document.getElementById('history-date-filter').value;
+  const clearBtn = document.getElementById('history-clear-btn');
+  if (clearBtn) clearBtn.style.display = val ? 'flex' : 'none';
+  renderHistory(val);
+}
+function clearHistoryFilter() {
+  const inp = document.getElementById('history-date-filter');
+  if (inp) inp.value = '';
+  const clearBtn = document.getElementById('history-clear-btn');
+  if (clearBtn) clearBtn.style.display = 'none';
+  renderHistory();
+}
+
+/* ─── 앨범 날짜 필터 ─── */
+function filterAlbum() {
+  const val = document.getElementById('album-date-filter').value;
+  const clearBtn = document.getElementById('album-clear-btn');
+  if (clearBtn) clearBtn.style.display = val ? 'flex' : 'none';
+  renderAlbum(val);
+}
+function clearAlbumFilter() {
+  const inp = document.getElementById('album-date-filter');
+  if (inp) inp.value = '';
+  const clearBtn = document.getElementById('album-clear-btn');
+  if (clearBtn) clearBtn.style.display = 'none';
+  renderAlbum();
+}
+
+
+function renderHistory(dateFilter) {
   const list = document.getElementById('history-list');
-  if (!feedLogs.length) {
-    list.innerHTML = `<div class="empty-state"><div class="empty-icon"></div><div class="empty-text">아직 기록이 없어요</div></div>`; return;
+  let logs = dateFilter ? feedLogs.filter(f => dateKey(f.ts) === dateFilter) : feedLogs;
+  if (!logs.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon"></div><div class="empty-text">${dateFilter ? '이 날의 기록이 없어요' : '아직 기록이 없어요'}</div></div>`; return;
   }
-  const maxMl = Math.max(...feedLogs.map(f=>f.ml));
-  list.innerHTML = feedLogs.map(f => {
+  const maxMl = Math.max(...logs.map(f=>f.ml));
+  list.innerHTML = logs.map(f => {
     const fmt = fmtTs(f.ts);
     const ds = dateStr(f.ts);
     return `<div class="history-blob-item" id="item-${f.id}">
@@ -420,12 +451,21 @@ function onPhotoFileSelected(e) {
   });
   e.target.value = '';
 }
-function renderAlbum() {
+function renderAlbum(dateFilter) {
   const grid = document.getElementById('album-grid');
-  if (!photos.length) {
-    grid.innerHTML = `<div class="empty-state" style="grid-column:span 2"><div class="empty-icon"></div><div class="empty-text">사진이 없어요<br>위 버튼으로 추가해보세요</div></div>`; return;
+  let filteredPhotos = dateFilter
+    ? photos.filter(p => {
+        // p.date 형식: 'YYYY.MM.DD' → compare with 'YYYY-MM-DD'
+        const parts = p.date.split('.');
+        if (parts.length !== 3) return false;
+        const pDateKey = `${parts[0]}-${parts[1].padStart(2,'0')}-${parts[2].padStart(2,'0')}`;
+        return pDateKey === dateFilter;
+      })
+    : photos;
+  if (!filteredPhotos.length) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:span 2"><div class="empty-icon"></div><div class="empty-text">${dateFilter ? '이 날의 사진이 없어요' : '사진이 없어요<br>위 버튼으로 추가해보세요'}</div></div>`; return;
   }
-  grid.innerHTML = photos.map(p => `
+  grid.innerHTML = filteredPhotos.map(p => `
     <div class="album-item" id="photo-${p.id}">
       <div class="album-thumb" onclick="openLightbox('${p.id}')">
         ${p.src
@@ -638,7 +678,7 @@ function renderCalDetail(d) {
         <img src="${p.src}" alt="${p.caption}">
         <div class="cal-photo-caption">${p.caption}</div>
       </div>`).join('')
-    : `<div class="empty-state" style="padding:16px"><div class="empty-icon"></div><div class="empty-text">이 날의 사진이 없어요<br><small>위 버튼으로 사진을 추가하세요</small></div></div>`;
+    : `<div class="empty-state" style="padding:32px 16px; grid-column: span 2; text-align:center; width:100%;"><div class="empty-icon"></div><div class="empty-text">이 날의 사진이 없어요<br><small>위 버튼으로 사진을 추가하세요</small></div></div>`;
 
   if (activeCalTab === 'memo') loadMemoForDay(d);
 
